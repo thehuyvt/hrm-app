@@ -6,7 +6,7 @@ use App\Models\Country;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CountryRequest extends FormRequest
+class StoreCountryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

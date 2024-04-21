@@ -5,15 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Models\Company;
 use App\Models\Department;
+use App\Services\CompanyService;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+    private CompanyService $companyService;
+
+    public function __construct()
+    {
+        $this->companyService = new CompanyService();
+    }
     public function index()
     {
-        $companies = Company::query()->get();
+        $response = $this->companyService->getAll();
         return view('company.index', [
-            'companies' => $companies,
+            'companies' => $response->getData(),
         ]);
     }
 
@@ -24,15 +31,15 @@ class CompanyController extends Controller
 
     public function store(StoreCompanyRequest $request)
     {
-        Company::query()->create($request->validated());
+        $response = $this->companyService->save($request);
         return redirect()->route('companies.index')
-            ->with('success', 'Add company successful!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function edit($companyId)
     {
-        $company = Company::query()->find($companyId);
-        $departments = Department::tree($company->department);
+        $company = $this->companyService->getById($companyId)->getData();
+        $departments = $this->companyService->getListDepartmentInCompany($companyId)->getData();
 //        dd($departments);
         return view('company.edit', [
             'company' => $company,
@@ -42,16 +49,16 @@ class CompanyController extends Controller
 
     public function update(StoreCompanyRequest $request, $companyId)
     {
-        $company = Company::query()->find($companyId);
-        $company->update($request->validated());
+        $response = $this->companyService->update($request, $companyId);
         return redirect()->route('companies.index')
-            ->with('success', 'Update company successful!');
+            ->with($response->getStatus(),
+            $response->getMessage());
     }
 
     public function destroy($company_id)
     {
-        Company::destroy($company_id);
+        $response = $this->companyService->delete($company_id);
         return redirect()->route('companies.index')
-            ->with('success', 'Delete company successful!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 }

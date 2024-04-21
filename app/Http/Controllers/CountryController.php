@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CountryRequest;
+use App\Http\Requests\StoreCountryRequest;
 use App\Models\Country;
+use App\Services\CountryService;
 use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
-    private $model;
-    public function __construct()
+    private CountryService $countryService;
+
+    public function __construct(CountryService $countryService)
     {
-        $this->model = new Country();
+        $this->countryService = $countryService;
     }
+
     public function index()
     {
-        $countries = $this->model::query()->get();
+        $response = $this->countryService->getAll();
         return view('country.index',[
-            'countries' => $countries,
+            'countries' => $response->getData(),
         ]);
     }
 
@@ -26,32 +29,32 @@ class CountryController extends Controller
         return view('country.create');
     }
 
-    public function store(CountryRequest $request)
+    public function store(StoreCountryRequest $request)
     {
-        $this->model::query()->create($request->validated());
+        $response = $this->countryService->save($request);
         return redirect()->route('countries.index')
-            ->with('success', 'Add country successfully!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function edit($countryId)
     {
-        $country = $this->model::query()->find($countryId);
+        $response = $this->countryService->getById($countryId);
         return view('country.edit',[
-            'country'=>$country,
+            'country'=>$response->getData(),
         ]);
     }
 
-    public function update(CountryRequest $request, $countryId)
+    public function update(StoreCountryRequest $request, $countryId)
     {
-        $country = $this->model::query()->find($countryId);
-        $country->update($request->validated());
-        return redirect()->route('countries.index')->with('success', "Update country successfully");
+        $response = $this->countryService->update($request, $countryId);
+        return redirect()->route('countries.index')
+            ->with($response->getStatus(), $response->getMessage(), null);
     }
 
     public function destroy($countryId)
     {
-        $this->model::destroy($countryId);
+       $response =  $this->countryService->delete($countryId);
         return redirect()->route('countries.index')
-            ->with('success', 'Delete country successful!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 }

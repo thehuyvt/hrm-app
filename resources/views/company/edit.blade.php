@@ -66,6 +66,12 @@
 </form>
 
 <h3>Danh mục phòng ban của công ty</h3>
+@if (session()->has('success'))
+
+    <div class="alert alert-success">
+        {{session()->get('success')}}
+    </div>
+@endif
 <a href="{{route('departments.create', $company->id)}}">Thêm phòng ban mới cho công ty {{$company->name}}</a>
 
 <table border="1" width="100%">

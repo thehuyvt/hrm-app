@@ -7,31 +7,36 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\Company;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\CompanyService;
+use App\Services\RoleService;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
-    private $model;
+    private UserService $userService;
+    private CompanyService $companyService;
+
+    private RoleService $roleService;
 
     public function __construct()
     {
-        $this->model = new User();
+        $this->userService = new UserService();
+        $this->companyService = new CompanyService();
+        $this->roleService = new RoleService();
     }
 
     public function index()
     {
-        $users = $this->model::query()
-            ->with('person')
-            ->paginate(10);
-        dd($users);
+        $response = $this->userService->getAll();
         return view('user.index', [
-            'users' => $users,
+            'users' => $response->getData(),
         ]);
     }
 
     public function create()
     {
-        $companies = Company::query()->get();
-        $roles = Role::query()->get();
+        $companies = $this->companyService->getAll()->getData();
+        $roles = $this->roleService->getAll()->getData();
         return view('user.create', [
             'companies' => $companies,
             'roles' => $roles,
@@ -40,33 +45,18 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        $roles = $request->input('listRoleId');
+        $response = $this->userService->save($request);
 
-        $user = User::query()->create([
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
-
-        $user->person()->create([
-            'full_name' => $request->full_name,
-            'gender' => $request->gender,
-            'birthdate' => $request->birthdate,
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-            'company_id' => $request->company_id,
-        ]);
-
-        $user->roles()->sync($roles);
-
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function edit($userId)
     {
-        $user = User::query()->find($userId);
+        $user = $this->userService->getById($userId)->getData();
         $selectedRoles = $user->roles;
-        $companies = Company::query()->get();
-        $roles = Role::query()->get();
+        $companies = $this->companyService->getAll();
+        $roles = $this->roleService->getAll();
         return view('user.edit', [
             'user' => $user,
             'companies' => $companies,
@@ -77,27 +67,15 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, $userId)
     {
-        $roles = $request->input('listRoleId');
-        $user = User::query()->find($userId);
-        $user->update([
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
-        $user->person()->update([
-            'full_name' => $request->full_name,
-            'gender' => $request->gender,
-            'birthdate' => $request->birthdate,
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-        ]);
-        $user->roles()->sync($roles);
-        return redirect()->route('users.index')->with('success', 'Update user successful!');
+        $response = $this->userService->update($request, $userId);
+        return redirect()->route('users.index')
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function destroy($userId)
     {
-        User::query()->where('id', '=', $userId)->delete();
+       $response = $this->userService->delete($userId);
         return redirect()->route('users.index')
-            ->with('success', 'Delete user successful!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 }

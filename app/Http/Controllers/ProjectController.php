@@ -6,16 +6,25 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Models\Company;
 use App\Models\Person;
 use App\Models\Project;
+use App\Services\CompanyService;
+use App\Services\ProjectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
+    private ProjectService $projectService;
+    private CompanyService $companyService;
+
+    public function __construct()
+    {
+        $this->projectService = new ProjectService();
+        $this->companyService = new CompanyService();
+    }
     public function index()
     {
-        $projects = Project::query()->with('people')->paginate(10);
+        $projects = $this->projectService->getAll()->getData();
 
-//        dd($projects);
         return view('project.index', [
            'projects'=>$projects,
         ]);
@@ -25,7 +34,7 @@ class ProjectController extends Controller
 
     public function create()
     {
-        $companies = Company::all();
+        $companies = $this->companyService->getAll()->getData();
         foreach ($companies as $company){
             $company->people = Person::query()->where('company_id', $company->id)->get();
         }
@@ -47,9 +56,11 @@ class ProjectController extends Controller
             ->with('success', 'Thêm mới dự án thành công!');
     }
 
-    public function edit()
+    public function edit($code)
     {
-
+        $project = Project::query()->where('code', $code)->first();
+        $person = Person::query()->where('id', 2)->first();
+        dd($person->projects);
     }
 
     public function update()

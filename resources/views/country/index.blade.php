@@ -33,3 +33,4 @@
         </tr>
     @endforeach
 </table>
+{{ $countries->links() }}

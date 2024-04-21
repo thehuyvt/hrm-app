@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Department extends Model
 {
     use HasFactory;
+//    public $primaryKey = 'code';
+
     protected $fillable=[
         'code',
         'name',

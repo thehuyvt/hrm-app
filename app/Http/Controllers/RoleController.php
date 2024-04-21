@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRoleRequest;
 use App\Models\Role;
+use App\Services\RoleService;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -11,11 +12,17 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
+    private RoleService $roleService;
+
+    public function __construct()
+    {
+        $this->roleService = new RoleService();
+    }
     public function index()
     {
-        $roles = Role::query()->get();
+        $response = $this->roleService->getAll();
         return view('role.index', [
-            'roles'=>$roles
+            'roles'=>$response->getData()
         ]);
     }
 
@@ -32,9 +39,9 @@ class RoleController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        Role::query()->create($request->validated());
+        $response = $this->roleService->save($request);
         return redirect()->route('roles.index')
-            ->with('success', 'Add role successful!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     /**
@@ -50,9 +57,9 @@ class RoleController extends Controller
      */
     public function edit($roleId)
     {
-        $role = Role::query()->find($roleId);
+        $response = $this->roleService->getById($roleId);
         return view('role.edit', [
-            'role'=>$role,
+            'role'=>$response->getData(),
         ]);
     }
 
@@ -61,17 +68,18 @@ class RoleController extends Controller
      */
     public function update(StoreRoleRequest $request, $roleId)
     {
-        $role = Role::query()->find($roleId);
-        $role->update($request->validated());
+        $response = $this->roleService->update($request, $roleId);
         return redirect()->route('roles.index')
-            ->with('success', 'Update role successful!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Role $role)
+    public function destroy($roleId)
     {
-        //
+        $response = $this->roleService->delete($roleId);
+        return redirect()->route('roles.index')
+            ->with($response->getStatus(), $response->getMessage());
     }
 }

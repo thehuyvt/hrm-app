@@ -1,4 +1,4 @@
-<h2>Create a new department</h2>
+<h2>Create a new company</h2>
 @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
@@ -8,7 +8,7 @@
         </ul>
     </div>
 @endif
-<form action="{{route('department.store')}}" method="post">
+<form action="{{route('companies.store')}}" method="post">
     @csrf
     <label for="code">Code:
         <input type="text" name="code" value="{{old('code')}}">

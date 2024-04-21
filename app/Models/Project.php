@@ -21,8 +21,8 @@ class Project extends Model
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
     }
-    public function people():BelongsToMany
+    public function people()
     {
-        return $this->belongsToMany(Person::class, 'project_people');
+        return $this->belongsToMany(Person::class, 'project_people', 'project_code', 'person_id');
     }
 }

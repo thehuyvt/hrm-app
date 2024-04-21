@@ -6,11 +6,21 @@ use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
 use App\Models\Company;
 use App\Models\Department;
+use App\Services\CompanyService;
+use App\Services\DepartmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DepartmentController extends Controller
 {
+    private CompanyService $companyService;
+    private DepartmentService $departmentService;
+
+    public function __construct()
+    {
+        $this->companyService = new CompanyService();
+        $this->departmentService = new DepartmentService();
+    }
     public function index()
     {
         //
@@ -18,30 +28,25 @@ class DepartmentController extends Controller
 
     public function create($companyId)
     {
-        $company = Company::query()->find($companyId);
+        $response = $this->companyService->getById($companyId);
         return view('department.create', [
-            'company' => $company,
+            'company' => $response->getData(),
         ]);
     }
 
     public function store(StoreDepartmentRequest $request)
     {
         $companyId = $request->company_id;
-        Department::query()->create([
-            'code' => $request->code,
-            'name' => $request->name,
-            'parent_id' => $request->parent_id,
-            'company_id' => $request->company_id,
-        ]);
-
+        $response = $this->departmentService->save($request);
         return redirect()->route('companies.edit', $companyId)
-            ->with('success', 'Thêm phòng ban thành công!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function edit($code)
     {
-        $departments = Department::query()->where('code', '!=', $code)->get();
-        $department = Department::query()->where('code', $code)->firstOrFail();
+        $departments = $this->departmentService->getListExcept($code)->getData();
+        $department = $this->departmentService->getById($code)->getData();
+//        dd($department->code);
         return view('department.edit',[
             'department'=>$department,
             'departments'=>$departments,
@@ -50,17 +55,17 @@ class DepartmentController extends Controller
 
     public function update(StoreDepartmentRequest $request, $code)
     {
-        $department = Department::query()->where('code', $code)->firstOrFail();
-        DB::table('departments')->where('code', $code)->update($request->validated());
-        return redirect()->route('companies.edit', $department->company_id)
-            ->with('success', 'Chỉnh sửa phòng ban thành công!');
+        $response = $this->departmentService->update($request, $code);
+
+        return redirect()->route('companies.edit', $response->getData()->company_id)
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function destroy($code)
     {
-        $department = Department::query()->where('code', $code)->firstOrFail();
-        DB::table('departments')->where('code', '=', $code)->delete();
+        $department = $this->departmentService->getById($code)->getData();
+        $response = $this->departmentService->delete($code);
         return redirect()->route('companies.edit', $department->company_id)
-            ->with('success', 'Xóa phòng ban thành công!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 }
