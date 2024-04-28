@@ -28,6 +28,11 @@ class ProjectService
         return new ResponseObject('success', "Lấy danh sách các dự án thành công!", $projects);
     }
 
+    public function listProject()
+    {
+        return $this->projectRepository->getAll();
+    }
+
     public function getById($id)
     {
         $project =  $this->projectRepository->findById($id);
@@ -38,7 +43,8 @@ class ProjectService
     public function save($request):ResponseObject
     {
         $project = $this->projectRepository->save($request);
-        return new ResponseObject('success', 'Thêm dự án thành công!', $project);
+        $project->people()->sync($request['people']);
+        return new ResponseObject('success', 'Thêm dự án thành công!', null);
     }
 
     public function update($request, $id)

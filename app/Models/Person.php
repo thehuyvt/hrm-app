@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Person extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'full_name',
         'gender',
@@ -41,8 +41,13 @@ class Person extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function projects()
+    public function projects():BelongsToMany
     {
         return $this->belongsToMany(Project::class, 'project_people', 'person_id', 'project_code');
+    }
+
+    public function tasks():HasMany
+    {
+        return $this->hasMany(Task::class, 'person_id', 'id');
     }
 }

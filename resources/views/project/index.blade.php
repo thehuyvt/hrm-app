@@ -13,7 +13,7 @@
             <th>Name</th>
             <th>Description</th>
             <th>Company</th>
-{{--            <th>People in project</th>--}}
+            <th>People in project</th>
             <th>Action</th>
 
         </tr>
@@ -24,10 +24,10 @@
             <td>{{$project->name}}</td>
             <td>{{$project->description}}</td>
             <td>{{$project->company->name}}</td>
-{{--            <td>--}}
-{{--                @foreach($project->people as $person)--}}
-{{--                    {{$person->name}}--}}
-{{--                @endforeach</td>--}}
+            <td>
+                @foreach($project->people as $person)
+                    {{$person->full_name. ', '}}
+                @endforeach</td>
             <td>
                 <a href="{{route('projects.edit', $project->code)}}">Edit</a>
                 <form action="{{route('projects.destroy', $project->code)}}" method="post">

@@ -20,6 +20,9 @@ class CompanyService
     public function getAll():ResponseObject
     {
         $companies = $this->companyRepository->findAll();
+        foreach ($companies as $company){
+            $company->people = $company->person;
+        }
         return new ResponseObject('success', "Lấy danh sách các công ty thành công!", $companies);
     }
 

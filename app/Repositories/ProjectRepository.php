@@ -12,6 +12,10 @@ class ProjectRepository extends Repository
         $this->model = new Project();
     }
 
+    public function getAll()
+    {
+        return $this->model::query()->with('people')->get();
+    }
     public function findAll()
     {
         return $this->model::query()->with('people')->paginate(10);
@@ -24,8 +28,7 @@ class ProjectRepository extends Repository
 
     public function update($request, $id)
     {
-        $company = $this->findById($id);
-        return $company->update($request->validated());
+        return $this->findById($id)->update($request->validated());
     }
 
     public function delete($id)
@@ -35,6 +38,6 @@ class ProjectRepository extends Repository
 
     public function findById($id)
     {
-        return $this->model::query()->find($id);
+        return $this->model::query()->where('code', $id)->first();
     }
 }

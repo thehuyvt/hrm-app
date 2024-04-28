@@ -28,9 +28,7 @@
     <br>
     <label for="people">People:
         <select id="people"  name="people[]" multiple>
-            @foreach($companies[0]->people as $person)
-                <option value="{{$person->id}}">{{$person->full_name}}</option>
-            @endforeach
+
         </select>
     </label>
     <br>
@@ -62,6 +60,6 @@
         }
         // console.log(selectPeople);
     }
-
+    addOption();
 
 </script>

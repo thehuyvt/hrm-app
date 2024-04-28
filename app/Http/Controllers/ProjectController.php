@@ -21,55 +21,54 @@ class ProjectController extends Controller
         $this->projectService = new ProjectService();
         $this->companyService = new CompanyService();
     }
+
     public function index()
     {
         $projects = $this->projectService->getAll()->getData();
-
+//        dd($projects);
         return view('project.index', [
-           'projects'=>$projects,
+            'projects' => $projects,
         ]);
     }
-
 
 
     public function create()
     {
         $companies = $this->companyService->getAll()->getData();
-        foreach ($companies as $company){
-            $company->people = Person::query()->where('company_id', $company->id)->get();
-        }
-
         return view('project.create', [
-            'companies'=>$companies,
+            'companies' => $companies,
         ]);
     }
 
     public function store(StoreProjectRequest $request)
     {
-        $project = Project::query()->create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'company_id' => $request->company_id,
-        ]);
-        $project->people()->sync($request['people']);
+        $response = $this->projectService->save($request);
         return redirect()->route('projects.index')
-            ->with('success', 'Thêm mới dự án thành công!');
+            ->with($response->getStatus(), $response->getMessage());
     }
 
     public function edit($code)
     {
-        $project = Project::query()->where('code', $code)->first();
-        $person = Person::query()->where('id', 2)->first();
-        dd($person->projects);
+        $project = $this->projectService->getById($code)->getData();
+//        dd($project->company_id);
+        $companies = $this->companyService->getAll()->getData();
+        return view('project.edit', [
+            'project' => $project,
+            'companies' => $companies,
+        ]);
     }
 
-    public function update()
+    public function update(StoreProjectRequest $request, $code)
     {
-
+        $response = $this->projectService->update($request, $code);
+        return redirect()->route('projects.index')
+            ->with($response->getStatus(), $response->getMessage());
     }
 
-    public function destroy()
+    public function destroy($code)
     {
-
+        $response = $this->projectService->delete($code);
+        return redirect()->route('projects.index')
+            ->with($response->getStatus(), $response->getMessage());
     }
 }

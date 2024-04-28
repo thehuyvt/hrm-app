@@ -54,9 +54,12 @@ class UserController extends Controller
     public function edit($userId)
     {
         $user = $this->userService->getById($userId)->getData();
+//        dd($user);
         $selectedRoles = $user->roles;
-        $companies = $this->companyService->getAll();
-        $roles = $this->roleService->getAll();
+//        dd($selectedRoles);
+        $companies = $this->companyService->getAll()->getData();
+        $roles = $this->roleService->getAll()->getData();
+//        dd($roles);
         return view('user.edit', [
             'user' => $user,
             'companies' => $companies,
