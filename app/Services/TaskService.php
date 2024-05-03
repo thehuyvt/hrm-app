@@ -4,6 +4,8 @@ namespace App\Services;
 
 
 
+use App\Enums\TaskPriorityEnum;
+use App\Enums\TaskStatusEnum;
 use App\Http\Requests\StoreCountryRequest;
 use App\Models\Country;
 use App\Models\Task;
@@ -63,12 +65,17 @@ class TaskService
     public function printPdf()
     {
         $tasks = $this->taskRepository->findAll();
+        foreach ($tasks as $task){
+            $task->status = TaskStatusEnum::getNameStatus($task->status);
+            $task->priority = TaskPriorityEnum::getNamePriority($task->priority);
+        }
         $data = [
             'title' => 'List Tasks',
             'date' => date('m/d/Y'),
-            'tasks' => $tasks
+            'tasks' => $tasks,
         ];
-        $pdf = PDF::loadView('task.printPdf', $data);
+        $pdf = PDF::loadView('task.printPdf', $data, utf8_decode('utf-8'));
+
         return $pdf->download('tasks-lists.pdf');
     }
 

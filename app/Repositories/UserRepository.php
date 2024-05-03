@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\User;
 use App\Response\ResponseObject;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository extends Repository
 {
@@ -20,15 +21,16 @@ class UserRepository extends Repository
     {
         return $this->model::query()->create([
             'email' => $request->email,
-            'password' => $request->password,
+            'password' => Hash::make($request->password),
         ]);
     }
 
     public function update($request, $id)
     {
+//        dd(Hash::make($request->password))
         return $this->findById($id)->update([
             'email' => $request->email,
-            'password' => $request->password,
+//            'password' => Hash::make($request->password),
         ]);
 
     }

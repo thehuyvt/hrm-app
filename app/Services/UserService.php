@@ -50,7 +50,8 @@ class UserService
 
     public function update($request, $id)
     {
-        $user = $this->userRepo->update($request, $id);
+        $this->userRepo->update($request, $id);
+        $user = $this->userRepo->findById($id);
         $user->person()->update([
             'full_name' => $request->full_name,
             'gender' => $request->gender,

@@ -29,11 +29,6 @@ class UpdateUserRequest extends FormRequest
                 'required',
                 Rule::unique(User::class)->ignore($this->user),
             ],
-            'password' => [
-                'required',
-                'string',
-                'max:200',
-            ],
 //            'is_active'=>[
 //                'required',
 //                'boolean',

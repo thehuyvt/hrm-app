@@ -14,10 +14,10 @@
     <label for="email">Email:
         <input type="email" name="email" value="{{$user->email}}">
     </label>
-    <br>
-    <label for="password">Password:
-        <input type="password" name="password" value="{{$user->password}}">
-    </label>
+{{--    <br>--}}
+{{--    <label for="password">Password:--}}
+{{--        <input type="password" name="password" value="{{$user->password}}">--}}
+{{--    </label>--}}
     <br>
     <label for="listRoleId">Role:
         <select name="listRoleId[]" multiple>
